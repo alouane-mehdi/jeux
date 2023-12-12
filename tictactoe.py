@@ -121,7 +121,7 @@ def diagonale2(player):
 
 
 def restart():
-    fenetre.fill(BLACK)  # Corrected to fill with black instead of white
+    fenetre.fill(BLACK)  
     lignes()
     player = 1
     for ligne in range(lignes_plateau):
