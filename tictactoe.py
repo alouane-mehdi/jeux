@@ -20,16 +20,20 @@ fenetre = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('TIC TAC TOE')
 fenetre.fill(BLACK)
 
+# Représentation de la grille
 plateau = np.zeros((lignes_plateau, colonnes_plateau))
 
+# Liste pour stocker les coordonnées des coups
+coups = []
 
+# Fonction pour dessiner les lignes de la grille
 def lignes():
     pygame.draw.line(fenetre, WHITE, (0, 270), (800, 270), largeur_ligne)
     pygame.draw.line(fenetre, WHITE, (0, 600), (800, 600), largeur_ligne)
     pygame.draw.line(fenetre, WHITE, (270, 0), (270, 800), largeur_ligne)
     pygame.draw.line(fenetre, WHITE, (600, 0), (600, 800), largeur_ligne)
 
-
+# Fonction pour dessiner les ronds et croix
 def dessinrond():
     for ligne in range(lignes_plateau):
         for colonne in range(colonnes_plateau):
@@ -42,91 +46,69 @@ def dessinrond():
                 pygame.draw.line(fenetre, WHITE, (colonne * 270 + espace, ligne * 270 + espace),
                                  (colonne * 270 + 270, ligne * 270 + 270 - espace), largeur_croix)
 
-
+# Fonction pour marquer que la case est occupée par un joueur
 def carre_occupe(ligne, colonne, joueur):
     plateau[ligne][colonne] = joueur
 
-
+# Fonction pour vérifier si la case est libre
 def carre_libre(ligne, colonne):
     return plateau[ligne][colonne] == 0
 
 
-def plateau_rempli():
-    for ligne in range(lignes_plateau):
-        for colonne in range(colonnes_plateau):
-            if plateau[ligne][colonne] == 0:
-                return False
-    return True
-
-
+# Fonction pour vérifier s'il y a une victoire
 def victoire(player):
-    for colonne in range(colonnes_plateau):
-        if plateau[0][colonne] == player and plateau[2][colonne] == player:
-            victoire_verticale(colonne, player)
-            return True
-
     for ligne in range(lignes_plateau):
-        if plateau[ligne][0] == player and plateau[ligne][1] == player and plateau[ligne][2] == player:
+        if all(plateau[ligne][colonne] == player for colonne in range(colonnes_plateau)):
             victoire_horizontale(ligne, player)
+            print("Victoire !")
             return True
 
-    if plateau[2][0] == player and plateau[1][1] == player and plateau[0][2] == player:
+    for colonne in range(colonnes_plateau):
+        if all(plateau[ligne][colonne] == player for ligne in range(lignes_plateau)):
+            victoire_verticale(colonne, player)
+            print("Victoire !")
+            return True
+
+    if all(plateau[ligne][colonne] == player for ligne in range(lignes_plateau)):
         diagonale1(player)
+        print("Victoire !")
         return True
 
-    if plateau[0][0] == player and plateau[1][1] == player and plateau[2][2] == player:
+    if all(plateau[ligne][lignes_plateau - ligne - 1] == player for ligne in range(lignes_plateau)):
         diagonale2(player)
+        print("Victoire !")
         return True
 
     return False
 
 
+# Fonction pour dessiner la ligne verticale en cas de victoire
 def victoire_verticale(colonne, player):
     posX = colonne * 270 + 100
-    if player == 1:
-        color = WHITE
-    elif player == 2:
-        color = WHITE
-
     pygame.draw.line(fenetre, WHITE, (posX, 15), (posX, HEIGHT - 15), 15)
 
-
+# Fonction pour dessiner la ligne horizontale en cas de victoire
 def victoire_horizontale(ligne, player):
     posY = ligne * 270 + 100
-
-    if player == 1:
-        color = WHITE
-    elif player == 2:
-        color = WHITE
-
     pygame.draw.line(fenetre, WHITE, (15, posY), (WIDTH - 15, posY), 15)
 
-
+# Fonction pour dessiner la première diagonale en cas de victoire
 def diagonale1(player):
-    if player == 1:
-        color = WHITE
-    elif player == 2:
-        color = WHITE
-
     pygame.draw.line(fenetre, WHITE, (15, HEIGHT - 15), (WIDTH - 15, 15), 15)
 
-
+# Fonction pour dessiner la deuxième diagonale en cas de victoire
 def diagonale2(player):
-    if player == 1:
-        color = WHITE
-    elif player == 2:
-        color = WHITE
-
     pygame.draw.line(fenetre, WHITE, (15, 15), (WIDTH - 15, HEIGHT - 15), 15)
 
-
+# Fonction pour redémarrer le jeu
 def restart():
-    fenetre.fill(BLACK)  
+    fenetre.fill(BLACK)
     lignes()
     player = 1
     for ligne in range(lignes_plateau):
         for colonne in range(colonnes_plateau):
             plateau[ligne][colonne] = 0
+
 
 
 lignes()
@@ -139,23 +121,30 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouseX = event.pos[0]  # x
-            mouseY = event.pos[1]  # y
+            mouseX = event.pos[0]
+            mouseY = event.pos[1]
 
-            ligne_cliquee = int(mouseY // 266)
-            colonne_cliquee = int(mouseX // 266)
+            ligne_cliquee = int(mouseY // (HEIGHT / lignes_plateau))
+            colonne_cliquee = int(mouseX // (WIDTH / colonnes_plateau))
 
             if carre_libre(ligne_cliquee, colonne_cliquee):
+                coups.append((ligne_cliquee, colonne_cliquee))
+                print("Coordonnées des coups :", coups)
+                    # Afficher les coordonnées des coups
+
+
                 if player == 1:
                     carre_occupe(ligne_cliquee, colonne_cliquee, 1)
                     if victoire(player):
-                        restart()
+                        print(player, "player")
+                        
                     player = 2
 
                 elif player == 2:
                     carre_occupe(ligne_cliquee, colonne_cliquee, 2)
                     if victoire(player):
-                        restart()
+                        print(player, "player 2")
+                        
                     player = 1
 
                 dessinrond()
@@ -163,10 +152,13 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 restart()
-
-    pygame.display.update()
-
-
+        
     
+    
+    pygame.display.flip()
+
+
+
+
    
             
